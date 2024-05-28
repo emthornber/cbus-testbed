@@ -1,0 +1,9 @@
+"/var/log/cbus-tb/stdout.log" /var/log/cbus-tb/stderr.log {
+	daily
+	missingok
+	rotate 5
+	compress
+	delaycompress
+	notifempty
+	create 644 root adm
+}

@@ -1,0 +1,87 @@
+################################################################################
+#   EPM configuration file to create the cbus-testbed package
+#
+#   Note: Expects ${binary} and ${srcdir} to be defined externally
+#
+#   28 May, 2024 - E M Thornber
+#   Created
+#
+################################################################################
+#
+$target="cbus-tb"
+# Utilities
+$SCTL=/usr/bin/systemctl
+# Services
+$SERVICE=${target}.service
+# Directories
+$home=/usr/local/etc/${target}
+$bindir=/usr/local/bin
+$logdir=/var/log/${target}
+$systemd=/usr/lib/systemd/system
+$srvdir=/etc/systemd/system/${target}.service.d
+# Sources
+$sysdir=${srcdir}/package
+$static=${srcdir}/dist
+
+%product Display CBUS Traffic
+%copyright 2024 MERG
+%vendor Enchanted Systems Limited
+%license LICENSE
+%readme README.md
+%description Web Application to disolay CBUS traffic from testbed network
+%version 0.1.0
+
+%requires debconf
+
+d 755 root root /etc -
+d 755 root root /etc/logrotate.d -
+d 755 root root /etc/systemd -
+d 755 root root /etc/systemd/system -
+d 755 root root ${srvdir} -
+d 755 root root /usr -
+d 755 root root /usr/lib -
+d 755 root root /usr/lib/systemd -
+d 755 root root ${systemd} -
+d 755 root root /usr/local -
+d 755 root root ${bindir} -
+d 755 root root /usr/local/etc -
+d 755 root root ${home} -
+d 755 root root ${home}/dist -
+d 755 root root /var -
+d 755 root root /var/log -
+d 755 root root ${logdir} -
+
+# canpi-ssr daemon, control script, and service definition
+f 755 root root ${bindir}/${target} ${binary}
+f 644 root root ${systemd}/${SERVICE}  ${sysdir}/${SERVICE}
+f 644 root root ${srvdir}/${target}.conf ${sysdir}/${target}.conf
+
+# canpi-ssr configuration files
+f 644 root root ${home}/dist    ${static}/*
+f 644 root root /etc/logrotate.d/${target} ${sysdir}/${target}.logrotate
+
+%postinstall <<EOF
+
+${SCTL} enable ${SERVICE}
+${SCTL} start ${SERVICE}
+
+EOF
+
+%preremove <<EOF
+${SCTL} stop ${SERVICE}
+${SCTL} disable ${SERVICE}
+
+EOF
+
+%postremove <<EOF
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+if [ "$$1" = "purge" ]; then
+    # Remove my changes to the debconf db.
+    db_purge
+fi
+
+${SCTL} daemon-reload
+
+EOF

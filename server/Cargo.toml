@@ -1,0 +1,24 @@
+[package]
+name = "server"
+version = "0.1.0"
+authors = ["Mark Thornber <mark.thornber@merg.org.uk>"]
+edition = "2021"
+license = "MIT"
+readme = "README.ms"
+description = "A web app to display CBUS traffic"
+repository = "https://github.com/emthornber/cbus-testbed"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "cbus-tb"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.7.5"
+axum-server = "0.6.0"
+clap = { version = "4.0.32", features = ["derive"] }
+tokio = { version = "1.24.1", features = ["full"] }
+tower = "0.4.13"
+tower-http = { version = "0.5.2", features = ["full"] }
+tracing = "0.1.37"
+tracing-subscriber = "0.3.16"
